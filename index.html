@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>빅데이터 분석 수행평가</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+:root{
+  --bg:#EDF0F3; --card:#FFFFFF; --ink:#17242F; --sub:#5A6674; --faint:#8A96A3;
+  --line:#E4E8EC; --line-strong:#D3D9DF;
+  --accent:#1D6FE0; --accent-deep:#0F3D73; --accent-soft:#EAF1FC;
+  --green:#178A5A; --green-soft:#E6F4EC; --amber:#B4791E; --amber-soft:#FBF1DE;
+  --danger:#C4453B; --shadow:0 18px 50px rgba(23,36,47,.10); --radius:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -10%, #F5F7F9 0%, rgba(245,247,249,0) 60%),var(--bg);
+  color:var(--ink);min-height:100vh;padding:32px 18px 80px;-webkit-font-smoothing:antialiased;line-height:1.5;}
+.wrap{max-width:760px;margin:0 auto;}
+.brandline{display:flex;align-items:center;justify-content:space-between;margin:0 4px 16px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;letter-spacing:.02em;color:var(--accent-deep);}
+.brand .dot{width:10px;height:10px;border-radius:3px;background:var(--accent);transform:rotate(45deg);}
+.whoami{font-size:13px;color:var(--faint);font-weight:600;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.rail{padding:20px 26px 0;}
+.rail-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.rail-step{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--faint);font-variant-numeric:tabular-nums;}
+.rail-step b{color:var(--accent);}
+.rail-name{font-size:12px;font-weight:700;color:var(--sub);}
+.rail-bar{display:flex;gap:5px;}
+.rail-seg{height:5px;flex:1;border-radius:99px;background:var(--line);transition:background .35s ease;}
+.rail-seg.done{background:var(--accent-deep);} .rail-seg.now{background:var(--accent);}
+.body{padding:26px 30px 8px;}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
+.eyebrow .num{font-variant-numeric:tabular-nums;background:var(--accent-soft);color:var(--accent-deep);padding:2px 8px;border-radius:6px;font-size:12px;}
+h1.title{font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;line-height:1.25;}
+.lead{font-size:15px;color:var(--sub);margin:0 0 20px;line-height:1.6;}
+.mode{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;margin-bottom:22px;}
+.mode.net{background:var(--green-soft);color:var(--green);}
+.mode.think{background:var(--amber-soft);color:var(--amber);}
+.mode.search{background:var(--accent-soft);color:var(--accent-deep);}
+.mode svg{width:15px;height:15px;}
+.remember{background:#FFF4E6;border:1.5px solid #F3C77B;border-radius:12px;padding:14px 16px;margin:2px 0 20px;font-size:13.5px;line-height:1.6;color:#8A5A12;}
+.remember b{color:#B4791E;}
+.guidebox{background:#F7F9FB;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:20px;font-size:13.5px;line-height:1.75;color:var(--ink);}
+.guidebox ol{margin:8px 0 0;padding-left:20px;} .guidebox li{margin-bottom:7px;}
+.guidebox .rd{color:#D64545;font-weight:800;}
+.exbox{background:var(--accent-soft);border:1px solid #CFE0F7;border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;color:var(--accent-deep);}
+.field{margin-bottom:20px;} .field:last-child{margin-bottom:6px;}
+.flabel{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.flabel .req{color:var(--danger);font-size:13px;} .flabel .opt{color:var(--faint);font-size:12px;font-weight:600;}
+.fhint{font-size:12.5px;color:var(--faint);font-weight:500;margin:-2px 0 9px;line-height:1.5;}
+.row2{display:flex;gap:14px;flex-wrap:wrap;} .row2 > .field{flex:1;min-width:200px;}
+input[type=text], input[type=url], textarea, select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#FBFCFD;
+  border:1.5px solid var(--line-strong);border-radius:12px;padding:13px 14px;transition:border-color .18s, box-shadow .18s, background .18s;resize:vertical;}
+textarea{min-height:112px;line-height:1.65;}
+input:focus, textarea:focus, select:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 4px rgba(29,111,224,.12);}
+input::placeholder, textarea::placeholder{color:#AEB7C0;}
+.link-field{position:relative;}
+.link-field .lk-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint);}
+.link-field input{padding-left:38px;}
+.pickset{display:flex;gap:12px;flex-wrap:wrap;}
+.pick{flex:1;min-width:150px;cursor:pointer;position:relative;border:1.5px solid var(--line-strong);border-radius:14px;padding:16px 16px 15px;background:#FBFCFD;transition:all .18s;}
+.pick:hover{border-color:var(--accent);background:#fff;}
+.pick .pk-t{font-weight:800;font-size:16px;margin-bottom:3px;} .pick .pk-d{font-size:12.5px;color:var(--sub);line-height:1.5;}
+.pick.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(29,111,224,.10);}
+.pick.on .pk-t{color:var(--accent-deep);}
+.pick .pk-check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;transition:all .18s;}
+.pick.on .pk-check{background:var(--accent);border-color:var(--accent);}
+.pick .pk-check svg{width:11px;height:11px;opacity:0;transition:opacity .18s;} .pick.on .pk-check svg{opacity:1;}
+.uploader{border:1.5px dashed var(--line-strong);border-radius:14px;background:#FBFCFD;padding:22px;text-align:center;cursor:pointer;transition:all .18s;}
+.uploader:hover{border-color:var(--accent);background:var(--accent-soft);}
+.uploader .up-ic{width:34px;height:34px;margin:0 auto 8px;color:var(--accent);}
+.uploader .up-t{font-weight:700;font-size:14px;color:var(--ink);} .uploader .up-s{font-size:12px;color:var(--faint);margin-top:3px;}
+.uploader input{display:none;}
+.preview{margin-top:12px;}
+.preview img{width:100%;border-radius:12px;border:1px solid var(--line);display:block;}
+.preview .pv-bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12.5px;color:var(--sub);}
+.pv-del{border:none;background:none;color:var(--danger);font-weight:700;cursor:pointer;font-family:inherit;font-size:12.5px;padding:4px 6px;border-radius:6px;}
+.pv-del:hover{background:#FCEDEC;}
+.foot{padding:20px 30px 26px;border-top:1px solid var(--line);margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.foot-hint{font-size:12.5px;color:var(--faint);display:flex;align-items:center;gap:7px;} .foot-hint svg{width:14px;height:14px;}
+.btn{font-family:inherit;font-weight:700;font-size:15px;border:none;cursor:pointer;padding:13px 24px;border-radius:12px;transition:all .16s;display:inline-flex;align-items:center;gap:9px;}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(29,111,224,.28);}
+.btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px);} .btn-primary:active{transform:translateY(0);}
+.btn-ghost{background:#fff;color:var(--sub);border:1.5px solid var(--line-strong);}
+.btn-ghost:hover{border-color:var(--sub);color:var(--ink);}
+.btn:disabled{opacity:.6;cursor:default;transform:none;}
+.btn svg{width:17px;height:17px;}
+.summary-box{background:#F7F9FB;border:1px solid var(--line);border-radius:14px;padding:6px 20px;margin-bottom:22px;}
+.sum-item{padding:15px 0;border-bottom:1px solid var(--line);} .sum-item:last-child{border-bottom:none;}
+.sum-k{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--accent);margin-bottom:5px;}
+.sum-v{font-size:14.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+.sum-v.empty{color:var(--faint);font-style:italic;} .sum-v a{color:var(--accent);word-break:break-all;}
+.sum-img{margin-top:8px;max-width:240px;border-radius:8px;border:1px solid var(--line);display:block;}
+.time-box{background:var(--amber-soft);border:1px solid #F0DFB8;border-radius:12px;padding:14px 16px;font-size:14px;color:var(--amber);line-height:1.7;margin-bottom:16px;}
+.print-tip{background:var(--accent-soft);border:1px solid #CFE0F7;border-radius:12px;padding:14px 16px;font-size:13px;color:var(--accent-deep);line-height:1.6;margin-bottom:16px;}
+.mask{position:fixed;inset:0;background:rgba(23,36,47,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
+.mask.show{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:30px 28px;max-width:400px;width:100%;box-shadow:0 30px 70px rgba(0,0,0,.35);text-align:center;animation:pop .25s cubic-bezier(.2,.9,.3,1.2);}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(8px);}to{opacity:1;transform:none;}}
+.modal .lock-ic{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;}
+.modal .lock-ic svg{width:26px;height:26px;}
+.modal h3{font-size:19px;font-weight:800;margin:0 0 6px;}
+.modal p{font-size:13.5px;color:var(--sub);margin:0 0 18px;line-height:1.55;}
+.modal input{text-align:center;font-size:17px;letter-spacing:.05em;margin-bottom:8px;}
+.modal .err{font-size:13px;color:var(--danger);font-weight:600;min-height:18px;margin-bottom:8px;}
+.modal-btns{display:flex;gap:10px;} .modal-btns .btn{flex:1;justify-content:center;}
+.shake{animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
+.stage{animation:fadein .4s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.teacher-fab{position:fixed;right:16px;bottom:16px;z-index:40;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--faint);cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.10);opacity:.5;transition:opacity .2s;}
+.teacher-fab:hover{opacity:1;} .teacher-fab svg{width:18px;height:18px;}
+.admin-banner{background:var(--amber);color:#fff;text-align:center;font-size:12.5px;font-weight:700;padding:8px;border-radius:10px;margin-bottom:14px;display:none;}
+.admin-banner.show{display:block;}
+.admin-nav{display:none;gap:8px;margin-top:14px;} .admin-nav.show{display:flex;}
+.admin-nav .btn{padding:9px 16px;font-size:13px;}
+@media (max-width:520px){body{padding:20px 12px 70px;} .body{padding:22px 20px 6px;} .rail{padding:16px 20px 0;} .foot{padding:18px 20px 22px;} h1.title{font-size:23px;}}
+#printDoc{display:none;}
+@media print{
+  body{background:#fff !important;padding:0 !important;}
+  body > *{display:none !important;}
+  #printDoc{display:block !important;}
+  @page{size:A4;margin:14mm;}
+  .pd-block{page-break-inside:avoid;} .pd-img{page-break-inside:avoid;max-width:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     ▼▼▼ 교사 설정 구역 (배포 전에 여기만 수정하세요) ▼▼▼
+
+     ★ 보안: 암호 '원문'은 이 파일에 없습니다. 되돌릴 수 없는 지문(해시)만 저장돼
+        학생이 소스를 봐도 암호를 알 수 없습니다.
+
+     [현재 사용하는 암호 — 학생에게 불러줄 값 / 이 파일에는 저장 안 됨]
+        ★ 지금은 아래 두 곳에서만 암호를 물어봅니다.
+        STEP4 → STEP5 (필요한 데이터 → 데이터 생성) : data3617
+        STEP6 → STEP7 (데이터 시각화 → 자료 분석)   : plot8493
+        교사 미리보기 : teacher!2025
+        (나머지 단계는 암호 없이 넘어갑니다. 암호 지점은 아래 GATED 로 정해집니다.)
+
+     [암호를 바꾸려면]
+        1) 학생 화면 오른쪽 아래 톱니바퀴 → 교사 암호(teacher!2025) 입력
+        2) '새 암호 해시 만들기'에 새 암호 입력 → 나온 해시값 복사
+        3) 아래 gateHashes / adminHash 의 해당 값에 붙여넣기 → 저장·재배포
+        ※ SALT 는 바꾸지 마세요(바꾸면 아래 해시를 전부 다시 만들어야 함).
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+const CONFIG = {
+  requireComplete: true,
+  submitUrl: "",   // ← 여기에 Apps Script 웹앱 URL을 붙여넣으세요
+
+  SALT: "HYEIN-BDA-2026",   // 해시 계산용 소금값 (변경 금지)
+
+  // 교사 미리보기 암호(teacher!2025)의 해시
+  adminHash: "444a214c67e80bbf964407635d640987148f242edbb3472ad7072517f6c7d000",
+
+  // 각 단계 통과 암호의 해시 (원문은 위 안내 참고)
+  gateHashes: {
+    1: "2fae3a4ec55b3b923bb1b5fe62b08f8eb021b6facce389618e3711e5df821baf", // aim7204  관심분야→사회문제
+    2: "dc16d5de7bdd578309cc118ff6ed550ce04e58b47c109a45179cb09f59371add", // news5138 사회문제→기법선택
+    3: "159efffbc488ea448d0c2c8ea86f1186a58448d00d42b648a592eb06b7e7416a", // pick9052 기법선택→필요데이터
+    4: "923ace30d15ddc8a540e0b3bd9ca28c77c334827340e6a1949d5d4a1aa32b5f7", // data3617 필요데이터→데이터생성
+    5: "eea7714ba4a0e0a2adf4c07e7cf4fb1a250318a8c95ef25bb4f9c5f1f25de207", // make6207 데이터생성→시각화
+    6: "5f51d9a371e1cd7527597884369a563d368ba76c7bdccc37be481358e0e1bc52", // plot8493 시각화→자료분석
+    7: "3d22a02f89e43983a74248f039f7d31bb1bb7559af470d507ef842199dc35890", // find2765 자료분석→해결방안
+    8: "6a067cdb8061ce37a5315c625c7eac9f71cb65f6310b13b8c499841d7caf51b1"  // idea4081 해결방안→요약제출
+  }
+};
+
+// 문자열 → SHA-256 해시(16진수). 브라우저 기본 기능이라 외부 라이브러리 불필요.
+async function sha256hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+</script>
+<!-- ▲▲▲ 교사 설정 구역 끝 ▲▲▲ -->
+
+<div class="wrap">
+  <div class="brandline">
+    <div class="brand"><span class="dot"></span> BIG&nbsp;DATA&nbsp;ANALYZE · 수행평가</div>
+    <div class="whoami" id="whoami"></div>
+  </div>
+  <div class="admin-banner" id="adminBanner">👀 교사 미리보기 모드 — 암호 없이 자유롭게 이동할 수 있습니다.</div>
+  <div class="card">
+    <div class="rail">
+      <div class="rail-top">
+        <div class="rail-step">STEP <b id="railNow">1</b> <span style="color:var(--line-strong)">/</span> <span id="railTotal">10</span></div>
+        <div class="rail-name" id="railName">시작하기</div>
+      </div>
+      <div class="rail-bar" id="railBar"></div>
+    </div>
+    <div class="body" id="stageHost"></div>
+    <div class="foot">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <button class="btn btn-ghost" id="backBtn" onclick="handleBack()" style="display:none;">◀ 이전</button>
+        <div class="foot-hint" id="footHint"></div>
+      </div>
+      <button class="btn btn-primary" id="nextBtn" onclick="handleNext()">다음으로</button>
+    </div>
+    <div style="padding:0 30px;">
+      <div class="admin-nav" id="adminNav">
+        <button class="btn btn-ghost" onclick="adminMove(-1)">◀ 이전(교사)</button>
+        <button class="btn btn-ghost" onclick="adminMove(1)">다음(교사) ▶</button>
+        <button class="btn btn-ghost" onclick="adminReset()" style="color:var(--danger);border-color:#F0CFCC;">전체 초기화</button>
+      </div>
+      <div id="hashTool" style="display:none;margin:14px 0 20px;padding:16px;border:1px solid #F0DFB8;background:var(--amber-soft);border-radius:12px;">
+        <div style="font-size:13px;font-weight:800;color:var(--amber);margin-bottom:8px;">🔑 새 암호 해시 만들기</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.55;">바꿀 암호를 입력하면 해시가 만들어집니다. 이 해시값을 파일 상단 <b>gateHashes</b>(또는 <b>adminHash</b>)의 해당 값에 붙여넣고 저장·재배포하세요.</div>
+        <input type="text" id="hashIn" placeholder="새 암호 입력 (예: sky2140)" oninput="makeHash()" style="margin-bottom:8px;">
+        <textarea id="hashOut" readonly placeholder="여기에 해시가 표시됩니다" style="min-height:56px;font-family:monospace;font-size:12px;background:#fff;"></textarea>
+        <button class="btn btn-ghost" id="hashCopyBtn" onclick="copyHash()" style="margin-top:8px;padding:9px 16px;font-size:13px;">해시 복사</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal" id="modal">
+    <div class="lock-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+    <h3>다음 단계 잠금</h3>
+    <p>선생님이 알려주는 <b>단계 암호</b>를 입력해야<br>다음 문제로 넘어갈 수 있어요.</p>
+    <input type="text" id="gateInput" placeholder="암호 입력" autocomplete="off" onkeydown="if(event.key==='Enter')submitGate()" />
+    <div class="err" id="gateErr"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeMask()">취소</button>
+      <button class="btn btn-primary" onclick="submitGate()">확인</button>
+    </div>
+  </div>
+</div>
+
+<button class="teacher-fab" title="교사용" onclick="askAdmin()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+</button>
+
+<div id="printDoc"></div>
+
+<script>
+const STAGES = [
+  { key:"start",   name:"시작하기",      type:null },     // 0
+  { key:"interest",name:"관심 분야",      type:"think" },  // 1
+  { key:"problem", name:"사회문제 탐색",  type:"search" }, // 2
+  { key:"method",  name:"분석 기법 선택", type:"think"},   // 3
+  { key:"data",    name:"필요한 데이터",  type:"think"},   // 4
+  { key:"datagen", name:"데이터 생성",    type:"ai"  },    // 5  (생성형 AI 사용)
+  { key:"viz",     name:"데이터 시각화",  type:"ai"  },    // 6  (생성형 AI 사용)
+  { key:"analysis",name:"자료 분석",      type:"think"},   // 7
+  { key:"solution",name:"해결 방안",      type:"think"},   // 8
+  { key:"summary", name:"요약 · 제출",    type:null   }    // 9
+];
+const LAST = STAGES.length - 1;
+const TIME_KEYS = ["interest","problem","method","data","datagen","viz","analysis","solution"];
+const GATED   = [4, 6];   // 암호가 필요한 지점: step4→5, step6→7  (이 두 곳만)
+const NO_BACK = [5, 7];   // '이전으로' 버튼이 없는 페이지: step5(데이터생성), step7(자료분석)
+
+const BLANK = {
+  studentId:"", studentName:"", interest:"",
+  problem:"", articleImg:"", problemReason:"",
+  method:"", methodReason:"",
+  dataDesc:"", indepVar:"", depVar:"",
+  dataGenPrompt:"", dataLink:"",
+  vizPrompt:"", vizImgs:[], vizAnalysis:"", solution:""
+};
+let state = { currentStage:0, admin:false, submitted:false, token:"", answers:{...BLANK}, times:{} };
+
+const SKEY = "bigdata_assessment_v3";
+function save(){ try{ localStorage.setItem(SKEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
+function load(){ try{ const s=localStorage.getItem(SKEY); if(s){ const p=JSON.parse(s);
+  state.currentStage=p.currentStage||0; state.answers={...BLANK,...(p.answers||{})};
+  state.times=p.times||{}; state.submitted=!!p.submitted; state.token=p.token||"";
+  if(!Array.isArray(state.answers.vizImgs)) state.answers.vizImgs=[]; } }catch(e){} }
+
+/* ── 시간 측정 ── */
+let stageEnterAt = Date.now();
+function tickTime(){
+  const now=Date.now(); const k=STAGES[state.currentStage].key;
+  state.times[k]=(state.times[k]||0)+(now-stageEnterAt); stageEnterAt=now; save();
+}
+function timesSec(){ const o={}; TIME_KEYS.forEach(k=>{o[k]=Math.round((state.times[k]||0)/1000);}); return o; }
+function totalSec(){ let s=0; Object.values(state.times).forEach(v=>s+=v); return Math.round(s/1000); }
+function fmtSec(sec){ const m=Math.floor(sec/60), s=sec%60; return m+":"+String(s).padStart(2,"0"); }
+
+const ICON_NET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>';
+const ICON_THINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3Z"/></svg>';
+const ICON_SEARCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
+function badge(type){
+  if(type==="ai") return `<div class="mode net">${ICON_NET} 생성형 AI 사용 단계 (데이터·그래프 생성)</div>`;
+  if(type==="search") return `<div class="mode search">${ICON_SEARCH} 기사·자료 검색은 가능 · 생성형 AI로 답을 만들지 않기</div>`;
+  if(type==="think") return `<div class="mode think">${ICON_THINK} 생성형 AI·검색 없이 나의 생각만 작성</div>`;
+  return "";
+}
+
+function render(){
+  const st=STAGES[state.currentStage], a=state.answers, host=document.getElementById("stageHost");
+  let html="";
+  const eyebrow=(n,label)=>`<div class="eyebrow"><span class="num">STEP ${n}</span> ${label}</div>`;
+  switch(st.key){
+
+  case "start":
+    html=`${eyebrow("00","시작하기")}
+      <h1 class="title">빅데이터로 사회문제 해결하기</h1>
+      <p class="lead">지속가능발전목표(SDGs)와 연계해 사회문제를 찾고, 데이터와 기계학습으로 해결 방안을 탐구합니다.
+      각 단계는 선생님이 암호를 알려줄 때만 다음으로 넘어갈 수 있으며, <b>한 번 넘어가면 되돌아갈 수 없습니다.</b></p>
+      <div class="summary-box" style="margin-bottom:22px;padding:16px 20px;">
+        <div class="sum-k" style="margin-bottom:8px;">오늘의 학습 목표</div>
+        <div class="sum-v" style="font-size:13.5px;color:var(--sub);">
+          ① 진로와 연계한 사회문제 탐색<br>② 문제에 맞는 기계학습 기법(분류·회귀·군집) 선정<br>③ 필요한 데이터 수집 및 분석 계획 수립</div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="flabel">학번 <span class="req">*</span></label>
+          <input type="text" id="f_studentId" placeholder="예) 1학년 3반 15번" value="${esc(a.studentId)}" oninput="bind('studentId',this.value)"></div>
+        <div class="field"><label class="flabel">이름 <span class="req">*</span></label>
+          <input type="text" id="f_studentName" placeholder="이름" value="${esc(a.studentName)}" oninput="bind('studentName',this.value)"></div>
+      </div>`; break;
+
+  case "interest":
+    html=`${eyebrow("01","사회문제 탐색하기")}
+      <h1 class="title">나의 관심 분야는 무엇인가요?</h1>
+      <p class="lead">진로·흥미와 연결되는 관심 분야를 자유롭게 적어 보세요. 이 분야에서 사회문제를 찾게 됩니다.</p>
+      ${badge(st.type)}
+      <div class="field"><label class="flabel">관심 분야 <span class="opt">(선택)</span></label>
+        <div class="fhint">예) 환경·에너지, 교통안전, 보건의료, 반려동물, 청소년 정신건강 등</div>
+        <input type="text" id="f_interest" placeholder="관심 분야 입력" value="${esc(a.interest)}" oninput="bind('interest',this.value)"></div>`; break;
+
+  case "problem":
+    html=`${eyebrow("02","사회문제 탐색하기")}
+      <h1 class="title">관련된 사회문제 정리하기</h1>
+      <p class="lead">나의 관심 분야와 관련된 사회문제를 찾아, 관련 뉴스 기사를 캡처하고 아래에 정리해 보세요. (기사·자료 검색은 괜찮지만, 생성형 AI로 답을 대신 만들지는 않아요.)</p>
+      ${badge(st.type)}
+      <div class="field"><label class="flabel">발견한 사회적 문제 <span class="opt">(선택)</span></label>
+        <div class="fhint">어떤 문제인지 한두 문장으로 간단히 정리해 주세요.</div>
+        <textarea id="f_problem" placeholder="예) 전동킥보드 관련 안전사고가 해마다 늘어나고 있다." oninput="bind('problem',this.value)">${esc(a.problem)}</textarea></div>
+      ${uploader("articleImg","관련 신문 기사 캡처","기사 화면을 캡처해서 올려 주세요")}
+      <div class="field"><label class="flabel">이 문제를 선택한 이유 <span class="opt">(선택)</span></label>
+        <textarea id="f_problemReason" placeholder="왜 이 문제가 중요하다고 생각했나요?" oninput="bind('problemReason',this.value)">${esc(a.problemReason)}</textarea></div>`; break;
+
+  case "method":
+    html=`${eyebrow("03","데이터 수집 및 분석 계획")}
+      <h1 class="title">어떤 기계학습 기법이 적합할까요?</h1>
+      <p class="lead">선정한 문제를 해결하려면 어떤 방법이 알맞은지 <b>스스로 판단</b>해 하나를 고르고, 이유를 설명해 보세요.</p>
+      ${badge(st.type)}
+      <div class="field"><label class="flabel">선택한 기법 <span class="opt">(선택)</span></label>
+        <div class="pickset" id="pickset">
+          ${pick("분류","정해진 유형으로 나눌 때 (예: 위험/안전)", a.method)}
+          ${pick("회귀","연속된 수치를 예측할 때 (예: 사고 건수)", a.method)}
+          ${pick("군집","비슷한 것끼리 묶을 때 (예: 지역 유형화)", a.method)}
+        </div></div>
+      <div class="field"><label class="flabel">선택한 이유 <span class="opt">(선택)</span></label>
+        <div class="fhint">예) 사고 발생 여부를 '위험/안전'으로 나누어 예측해야 하므로 분류 모델이 적합하다.</div>
+        <textarea id="f_methodReason" placeholder="왜 이 기법이어야 하는지 설명해 주세요." oninput="bind('methodReason',this.value)">${esc(a.methodReason)}</textarea></div>`; break;
+
+  case "data":
+    html=`${eyebrow("04","데이터 수집 및 분석 계획")}
+      <h1 class="title">어떤 데이터가 필요할까요?</h1>
+      <p class="lead">앞에서 고른 기법을 적용하려면 어떤 데이터가 필요할지 <b>스스로 설계</b>해 보세요. 검색하지 말고 직접 생각해 적는 단계입니다.</p>
+      ${badge(st.type)}
+      <div class="remember">📌 <b>여기에 적은 세 가지(데이터 종류·독립변수·종속변수)는 다음 단계 '데이터 생성'에서 그대로 사용합니다. 꼭 기억해 두세요!</b></div>
+      <div class="field"><label class="flabel">필요한 데이터 종류 설명 <span class="opt">(선택)</span></label>
+        <div class="fhint">어떤 항목(열)들이 포함되어야 하나요?</div>
+        <textarea id="f_dataDesc" placeholder="예) 지역, 시간대, 날씨, 도로 유형, 사고 발생 여부 등" oninput="bind('dataDesc',this.value)">${esc(a.dataDesc)}</textarea></div>
+      <div class="row2">
+        <div class="field"><label class="flabel">독립변수 <span class="opt">(선택)</span></label><div class="fhint">예측에 사용하는 입력 값</div>
+          <input type="text" id="f_indepVar" placeholder="예) 날씨, 시간대, 도로 유형" value="${esc(a.indepVar)}" oninput="bind('indepVar',this.value)"></div>
+        <div class="field"><label class="flabel">종속변수 <span class="opt">(선택)</span></label><div class="fhint">예측하려는 결과 값</div>
+          <input type="text" id="f_depVar" placeholder="예) 사고 발생 여부" value="${esc(a.depVar)}" oninput="bind('depVar',this.value)"></div></div>`; break;
+
+  case "datagen":
+    html=`${eyebrow("05","데이터 수집 및 분석 계획")}
+      <h1 class="title">생성형 AI로 데이터 만들기</h1>
+      <p class="lead">앞 단계에서 정한 <b>데이터 종류·독립변수·종속변수</b>를 활용해, 생성형 AI로 분석용 데이터를 만들어 봅니다. 아래 순서를 그대로 따라 하세요.</p>
+      ${badge(st.type)}
+      <div class="guidebox">
+        <div style="font-weight:800;color:var(--accent-deep);margin-bottom:6px;">📋 데이터 생성 방법</div>
+        <ol>
+          <li>생성형 AI에 <b>사회적 문제를 넣어서 검색하지 않기!!</b></li>
+          <li>반드시 앞장에서 정한 필요한 요소들을 넣어 주고, 데이터 <span class="rd">표</span> 50개를 <span class="rd">표</span>로 생성해 달라고 하기</li>
+          <li class="rd">프롬프트에 반드시 포함할 내용!!! 데이터 생성 외에 다른 분석은 하지 않음.</li>
+          <li>구글 Sheets → 빈 스프레드시트 → 생성형 AI가 만든 표 내용 붙여넣기</li>
+          <li>오른쪽 위 [공유] → [제한됨] → [링크가 있는 모든 사용자]로 변경 → 링크 복사</li>
+          <li>아래 칸에 링크 붙여넣기</li>
+        </ol>
+      </div>
+      <div class="field"><label class="flabel">데이터 생성에 사용한 프롬프트 <span class="opt">(선택)</span></label>
+        <div class="fhint">생성형 AI에 입력한 프롬프트를 그대로 붙여넣어 주세요. (선생님이 확인합니다)</div>
+        <textarea id="f_dataGenPrompt" style="min-height:120px" placeholder="예) 다음 항목(독립변수: … / 종속변수: …)을 열로 하는 가상의 데이터 50개를 표로만 만들어 줘. 다른 분석은 하지 마." oninput="bind('dataGenPrompt',this.value)">${esc(a.dataGenPrompt)}</textarea></div>
+      <div class="field"><label class="flabel">생성한 데이터 링크 <span class="opt">(선택)</span></label>
+        <div class="fhint">위 5번에서 복사한 구글 시트 공유 링크를 붙여넣어 주세요.</div>
+        <div class="link-field"><span class="lk-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+          <input type="url" id="f_dataLink" placeholder="https://docs.google.com/spreadsheets/..." value="${esc(a.dataLink)}" oninput="bind('dataLink',this.value)"></div></div>`; break;
+
+  case "viz":
+    html=`${eyebrow("06","데이터 시각화")}
+      <h1 class="title">데이터를 그래프로 시각화하기</h1>
+      <p class="lead">앞에서 만든 데이터를 생성형 AI로 그래프를 만들어 시각화해 보세요. 여러 개의 그래프를 함께 첨부할 수 있습니다.</p>
+      ${badge(st.type)}
+      <div class="exbox">
+        <div style="font-weight:800;margin-bottom:6px;">🎨 어떤 요소로 그래프를 만들까요? (예시)</div>
+        앞에서 정한 <b>독립변수·종속변수</b>를 활용해 관계나 경향이 드러나는 그래프를 요청해 보세요.<br>
+        · 예) 독립변수(시간대)에 따른 종속변수(사고 건수)를 <b>막대그래프</b>로<br>
+        · 예) 독립변수(연도)에 따른 종속변수(발생 건수)의 흐름을 <b>꺾은선그래프</b>로<br>
+        · 예) 두 변수의 관계(예: 강수량–사고 수)를 <b>산점도</b>로
+      </div>
+      <div class="field"><label class="flabel">그래프 생성에 사용한 프롬프트 <span class="opt">(선택)</span></label>
+        <div class="fhint">생성형 AI에 입력한 프롬프트를 그대로 붙여넣어 주세요. (선생님이 확인합니다)</div>
+        <textarea id="f_vizPrompt" style="min-height:110px" placeholder="예) 위 데이터에서 '시간대'별 '사고 건수'를 막대그래프로 그려 줘." oninput="bind('vizPrompt',this.value)">${esc(a.vizPrompt)}</textarea></div>
+      ${multiUploader("vizImgs","시각화 자료","막대·꺾은선·산점도 등 만든 그래프를 올려 주세요",6)}`; break;
+
+  case "analysis":
+    html=`${eyebrow("07","데이터 시각화")}
+      <h1 class="title">시각화 자료 분석하기</h1>
+      <p class="lead">앞에서 만든 그래프를 보고, 생성형 AI 없이 <b>스스로</b> 무엇을 알 수 있었는지 분석해 보세요.</p>
+      ${badge(st.type)}
+      <div class="field"><label class="flabel">자료 분석 <span class="opt">(선택)</span></label>
+        <div class="fhint">시각화 자료로 무엇을 알 수 있었나요? 새롭게 발견한 사실·패턴·경향을 구체적으로 작성하세요.</div>
+        <textarea id="f_vizAnalysis" style="min-height:150px" placeholder="예) 비 오는 날 저녁 시간대에 사고가 집중되는 경향이 나타났다." oninput="bind('vizAnalysis',this.value)">${esc(a.vizAnalysis)}</textarea></div>`; break;
+
+  case "solution":
+    html=`${eyebrow("08","해결 방안 제안")}
+      <h1 class="title">나만의 해결 방안 제안하기</h1>
+      <p class="lead">분석 결과를 바탕으로, 처음 선정한 사회문제를 해결하기 위한 <b>나만의 아이디어와 실천 계획</b>을 제안해 보세요.</p>
+      ${badge(st.type)}
+      <div class="field"><label class="flabel">해결 방안 제안 및 실천 계획 <span class="opt">(선택)</span></label>
+        <div class="fhint">데이터 분석에서 얻은 근거와 연결해 구체적으로 작성할수록 좋습니다.</div>
+        <textarea id="f_solution" style="min-height:150px" placeholder="예) 사고가 잦은 시간대·구간에 알림을 보내는 앱을 만들고, 학교 차원의 캠페인을 진행한다." oninput="bind('solution',this.value)">${esc(a.solution)}</textarea></div>`; break;
+
+  case "summary":
+    const submitLabel = state.submitted ? "제출 완료 ✓ (다시 제출)" : "선생님께 제출하기";
+    html=`${eyebrow("09","요약 정리 · 제출")}
+      <h1 class="title">활동 요약 및 제출</h1>
+      <p class="lead">지금까지 작성한 내용을 확인하고, 선생님께 제출한 뒤 PDF로도 저장해 보관하세요.</p>
+      <div class="time-box">⏱ 단계별 학습 시간 &nbsp; 총 <b>${fmtSec(totalSec())}</b><br>
+        <span style="font-size:12px;color:var(--faint)">${TIME_KEYS.map(k=>labelKO(k)+" "+fmtSec(Math.round((state.times[k]||0)/1000))).join(" · ")}</span></div>
+      <div class="summary-box" id="summaryBox">${buildSummary()}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <button class="btn btn-primary" id="submitBtn" style="flex:1;min-width:190px;justify-content:center;padding:15px;" onclick="submitToTeacher()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>${submitLabel}</button>
+        <button class="btn btn-ghost" style="flex:1;min-width:190px;justify-content:center;padding:15px;" onclick="printPDF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>PDF로 저장</button>
+      </div>
+      <div class="print-tip"><b>제출</b> 버튼을 누르면 작성 내용·이미지·단계별 시간이 선생님 시트로 전송됩니다.
+        <b>PDF 저장</b>은 인쇄 창에서 대상을 <b>'PDF로 저장'</b>으로 선택하면 됩니다.</div>
+      ${ (state.submitted && state.token) ? `
+      <div style="margin-top:16px;padding:16px;border:1px solid #CFE0F7;background:var(--accent-soft);border-radius:12px;">
+        <div style="font-size:13px;font-weight:800;color:var(--accent-deep);margin-bottom:6px;">🔗 나의 고유 링크 (꼭 저장!)</div>
+        <div style="font-size:12.5px;color:var(--sub);margin-bottom:10px;line-height:1.55;">이 링크를 저장하면 창을 닫아도 다시 열어 <b>선생님 피드백</b>을 확인할 수 있어요. (즐겨찾기 추가를 추천해요.)</div>
+        <input type="text" id="myLinkInput" readonly value="${esc(myLink())}" style="font-size:12.5px;background:#fff;margin-bottom:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="copyLinkBtn" onclick="copyMyLink()" style="padding:10px 16px;font-size:13px;">링크 복사</button>
+          <button class="btn btn-primary" onclick="goMyFeedback()" style="padding:10px 16px;font-size:13px;">피드백 확인하러 가기 →</button>
+        </div>
+      </div>` : '' }`; break;
+  }
+  host.innerHTML=`<div class="stage">${html}</div>`;
+  updateRail(); updateFoot(); updateWho();
+}
+function labelKO(k){ return {interest:"관심분야",problem:"사회문제",method:"기법선택",data:"필요데이터",datagen:"데이터생성",viz:"시각화",analysis:"자료분석",solution:"해결방안"}[k]||k; }
+
+/* ── 부품 ── */
+function pick(val, desc, cur){
+  const on=cur===val?"on":"";
+  return `<label class="pick ${on}" onclick="setMethod('${val}')">
+    <div class="pk-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg></div>
+    <div class="pk-t">${val}</div><div class="pk-d">${desc}</div></label>`;
+}
+function uploader(key,title,sub){
+  const has=state.answers[key];
+  return `<div class="field">
+    <div class="uploader" onclick="document.getElementById('up_${key}').click()">
+      <div class="up-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v13"/></svg></div>
+      <div class="up-t">${title}</div><div class="up-s">${sub}</div>
+      <input type="file" id="up_${key}" accept="image/*" onchange="onImg('${key}',this)"></div>
+    ${ has ? `<div class="preview"><img src="${has}"><div class="pv-bar"><span>첨부됨</span><button class="pv-del" onclick="delImg('${key}')">삭제</button></div></div>`:'' }</div>`;
+}
+function multiUploader(key,title,sub,max){
+  const arr=state.answers[key]||[];
+  const items=arr.map((src,i)=>`<div class="preview" style="margin-top:0;margin-bottom:12px;"><img src="${src}">
+    <div class="pv-bar"><span>그래프 ${i+1}</span><button class="pv-del" onclick="delMultiImg('${key}',${i})">삭제</button></div></div>`).join('');
+  const add=arr.length<max?`<div class="uploader" onclick="document.getElementById('mup_${key}').click()">
+      <div class="up-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div class="up-t">${title} 추가</div><div class="up-s">${sub} (${arr.length}/${max})</div>
+      <input type="file" id="mup_${key}" accept="image/*" onchange="onMultiImg('${key}',this)"></div>`
+    :`<div class="up-s" style="text-align:center;color:var(--faint)">최대 ${max}개까지 첨부했습니다.</div>`;
+  return `<div class="field"><label class="flabel">${title} <span class="opt">(선택)</span></label><div class="fhint">${sub}</div>${items}${add}</div>`;
+}
+function bind(k,v){ state.answers[k]=v; save(); }
+function setMethod(v){ state.answers.method=v; save();
+  document.querySelectorAll('#pickset .pick').forEach(el=>{ el.classList.toggle('on', el.querySelector('.pk-t').textContent===v); }); }
+
+function resizeImage(file,MAX,q){ return new Promise((res,rej)=>{ const r=new FileReader();
+  r.onload=e=>{ const img=new Image(); img.onload=()=>{ let {width:w,height:h}=img;
+    if(w>MAX||h>MAX){ const k=Math.min(MAX/w,MAX/h); w=Math.round(w*k); h=Math.round(h*k); }
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
+    res(cv.toDataURL('image/jpeg',q)); }; img.onerror=rej; img.src=e.target.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
+async function onImg(key,input){ const f=input.files[0]; if(!f)return; if(!f.type.startsWith('image/')){alert('이미지 파일만 올릴 수 있어요.');return;}
+  const data=await resizeImage(f,1200,0.82); const prev=state.answers[key]; state.answers[key]=data;
+  if(!save()){ state.answers[key]=prev; alert('저장 공간이 부족합니다. 이미지 용량을 줄여 주세요.'); } render(); }
+function delImg(key){ state.answers[key]=""; save(); render(); }
+async function onMultiImg(key,input){ const f=input.files[0]; if(!f)return; if(!f.type.startsWith('image/')){alert('이미지 파일만 올릴 수 있어요.');return;}
+  const data=await resizeImage(f,1000,0.8); if(!Array.isArray(state.answers[key])) state.answers[key]=[];
+  state.answers[key].push(data); if(!save()){ state.answers[key].pop(); alert('저장 공간이 부족합니다. 그래프 개수나 용량을 줄여 주세요.'); } render(); }
+function delMultiImg(key,i){ state.answers[key].splice(i,1); save(); render(); }
+
+function updateRail(){ const bar=document.getElementById('railBar'); bar.innerHTML='';
+  STAGES.forEach((s,i)=>{ const seg=document.createElement('div'); seg.className='rail-seg';
+    if(i<state.currentStage) seg.className+=' done'; if(i===state.currentStage) seg.className+=' now'; bar.appendChild(seg); });
+  document.getElementById('railNow').textContent=state.currentStage+1;
+  document.getElementById('railTotal').textContent=STAGES.length;
+  document.getElementById('railName').textContent=STAGES[state.currentStage].name; }
+function updateFoot(){ const nb=document.getElementById('nextBtn'), fh=document.getElementById('footHint'), bb=document.getElementById('backBtn');
+  const lock='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+  const cs=state.currentStage;
+  // 다음 버튼 / 힌트
+  if(cs===LAST){ nb.style.display='none'; fh.innerHTML=''; }
+  else if(cs===0){ nb.style.display='inline-flex'; nb.textContent='시작하기'; fh.innerHTML='학번과 이름을 입력하고 시작하세요.'; }
+  else if(GATED.includes(cs)){ nb.style.display='inline-flex'; nb.innerHTML=lock+' 다음으로'; fh.innerHTML=lock+' 다음 단계는 선생님 암호가 필요해요.'; }
+  else{ nb.style.display='inline-flex'; nb.innerHTML='다음으로'; fh.innerHTML=''; }
+  // 이전 버튼: 첫 페이지·데이터생성(5)·자료분석(7) 제외하고 표시
+  const showBack = cs>0 && !NO_BACK.includes(cs);
+  bb.style.display = (showBack || state.admin) ? 'inline-flex' : 'none';
+}
+function updateWho(){ const a=state.answers; document.getElementById('whoami').textContent=a.studentName?`${a.studentId} ${a.studentName}`:''; }
+
+function handleNext(){ if(!validate())return; if(state.admin){move(1);return;} if(GATED.includes(state.currentStage)){ openGate(); return; } move(1); }
+function handleBack(){ if(state.currentStage<=0) return; if(!state.admin && NO_BACK.includes(state.currentStage)) return; move(-1); }
+function move(dir){ const t=state.currentStage+dir; if(t<0||t>LAST)return; tickTime(); state.currentStage=t; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+const MAIN={1:["interest"],2:["problem","problemReason","articleImg"],3:["method","methodReason"],
+  4:["dataDesc","indepVar","depVar"],5:["dataGenPrompt","dataLink"],6:["vizPrompt","vizImgs"],7:["vizAnalysis"],8:["solution"]};
+function pageEmpty(stage){ const keys=MAIN[stage]; if(!keys)return false;
+  return keys.every(k=>{ const v=state.answers[k]; return Array.isArray(v)?v.length===0:!String(v||'').trim(); }); }
+function validate(){
+  if(state.currentStage===0){ for(const [k,label] of [["studentId","학번"],["studentName","이름"]]){
+    if(!String(state.answers[k]||"").trim()){ alert(`'${label}'을(를) 입력해 주세요.`); const el=document.getElementById('f_'+k); if(el)el.focus(); return false; } } return true; }
+  if(CONFIG.requireComplete && pageEmpty(state.currentStage)) return confirm('아직 아무 내용도 작성하지 않았어요. 그래도 다음 단계로 넘어갈까요?');
+  return true;
+}
+
+function openGate(){ document.getElementById('gateInput').value=''; document.getElementById('gateErr').textContent='';
+  document.getElementById('mask').classList.add('show'); setTimeout(()=>document.getElementById('gateInput').focus(),100); }
+function closeMask(){ document.getElementById('mask').classList.remove('show'); }
+async function submitGate(){
+  const need=CONFIG.gateHashes[state.currentStage];
+  const val=document.getElementById('gateInput').value.trim();
+  const hash=await sha256hex(CONFIG.SALT+val);
+  if(hash===need){ closeMask(); move(1); }
+  else{ document.getElementById('gateErr').textContent='암호가 올바르지 않습니다.'; const m=document.getElementById('modal'); m.classList.remove('shake'); void m.offsetWidth; m.classList.add('shake'); } }
+
+async function askAdmin(){ if(state.admin){ state.admin=false; document.getElementById('adminBanner').classList.remove('show'); document.getElementById('adminNav').classList.remove('show'); document.getElementById('hashTool').style.display='none'; return; }
+  const p=prompt('교사용 암호를 입력하세요.'); if(p===null)return;
+  const h=await sha256hex(CONFIG.SALT+p.trim());
+  if(h===CONFIG.adminHash){ state.admin=true; document.getElementById('adminBanner').classList.add('show'); document.getElementById('adminNav').classList.add('show'); document.getElementById('hashTool').style.display='block'; }
+  else alert('교사용 암호가 올바르지 않습니다.'); }
+
+// 교사용: 새 암호의 해시를 만들어 주는 도구
+async function makeHash(){
+  const pw=document.getElementById('hashIn').value.trim();
+  if(!pw){ document.getElementById('hashOut').value=''; return; }
+  document.getElementById('hashOut').value=await sha256hex(CONFIG.SALT+pw);
+}
+function copyHash(){
+  const el=document.getElementById('hashOut'); if(!el.value) return;
+  el.select(); document.execCommand('copy');
+  const b=document.getElementById('hashCopyBtn'); const t=b.textContent; b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent=t,1200);
+}
+function adminMove(d){ if(state.admin) move(d); }
+function adminReset(){ if(!state.admin)return; if(confirm('모든 입력 내용을 지우고 처음부터 다시 시작할까요?')){
+  localStorage.removeItem(SKEY); state.currentStage=0; state.answers={...BLANK}; state.times={}; state.submitted=false; stageEnterAt=Date.now(); render(); window.scrollTo({top:0}); } }
+
+/* ── 제출 (Apps Script) ── */
+function genToken(){
+  if(window.crypto && crypto.randomUUID) return crypto.randomUUID().replace(/-/g,'').slice(0,16);
+  return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+}
+function myLink(){ return location.origin + location.pathname + '?id=' + state.token; }
+
+async function submitToTeacher(){
+  if(!CONFIG.submitUrl){ alert('제출 주소가 아직 설정되지 않았습니다. 선생님께 문의하세요.'); return; }
+  if(!String(state.answers.studentId||'').trim() || !String(state.answers.studentName||'').trim()){ alert('학번과 이름이 필요합니다.'); return; }
+  if(state.submitted && !confirm('이미 제출했습니다. 다시 제출할까요?')) return;
+  tickTime();
+  if(!state.token){ state.token=genToken(); save(); }
+  const btn=document.getElementById('submitBtn'); const old=btn.innerHTML; btn.disabled=true; btn.innerHTML='제출 중...';
+  const a=state.answers, t=timesSec();
+  const payload={ submittedAt:new Date().toLocaleString('ko-KR'), token:state.token, link:myLink(),
+    studentId:a.studentId, studentName:a.studentName, interest:a.interest,
+    problem:a.problem, problemReason:a.problemReason, method:a.method, methodReason:a.methodReason,
+    dataDesc:a.dataDesc, indepVar:a.indepVar, depVar:a.depVar,
+    dataGenPrompt:a.dataGenPrompt, dataLink:a.dataLink,
+    vizPrompt:a.vizPrompt, vizAnalysis:a.vizAnalysis, solution:a.solution,
+    articleImg:a.articleImg||'', vizImgs:a.vizImgs||[],
+    times:t, totalTime:totalSec() };
+  try{
+    await fetch(CONFIG.submitUrl,{ method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+    state.submitted=true; save();
+    alert('제출되었습니다! 아래에 생긴 나의 고유 링크를 꼭 저장해 두세요.\n이 링크로 나중에 다시 열어 선생님 피드백을 확인할 수 있어요.');
+  }catch(e){ alert('제출 중 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도하거나, PDF로 저장해 제출하세요.'); }
+  finally{ btn.disabled=false; render(); }
+}
+function copyMyLink(){
+  const el=document.getElementById('myLinkInput'); if(!el) return;
+  el.select(); document.execCommand('copy');
+  const b=document.getElementById('copyLinkBtn'); const t=b.textContent; b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent=t,1200);
+}
+function goMyFeedback(){ location.href = myLink(); }
+
+function buildSummary(){ const a=state.answers;
+  const row=(k,v,imgs,link)=>{ const val=(v&&String(v).trim())?`<div class="sum-v">${esc(v)}</div>`:`<div class="sum-v empty">(작성 안 함)</div>`;
+    const lk=link&&link.trim()?`<div class="sum-v" style="margin-top:4px"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a></div>`:'';
+    const im=(imgs||[]).filter(Boolean).map(s=>`<img class="sum-img" src="${s}">`).join('');
+    return `<div class="sum-item"><div class="sum-k">${k}</div>${val}${lk}${im}</div>`; };
+  return row('관심 분야',a.interest)+row('사회적 문제',a.problem,[a.articleImg])+row('문제 선택 이유',a.problemReason)
+    +row('선택한 기법 · 이유',(a.method?`[${a.method}] `:'')+a.methodReason)
+    +row('필요한 데이터',`${a.dataDesc}\n· 독립변수: ${a.indepVar}\n· 종속변수: ${a.depVar}`)
+    +row('데이터 생성 프롬프트',a.dataGenPrompt)+row('생성한 데이터 링크','',null,a.dataLink)
+    +row('그래프 생성 프롬프트',a.vizPrompt)+row('시각화 자료','',a.vizImgs)
+    +row('자료 분석',a.vizAnalysis)+row('해결 방안 · 실천 계획',a.solution); }
+
+function buildPrintDoc(){ const a=state.answers;
+  const block=(label,val,imgs,link)=>{ const v=(val&&String(val).trim())?esc(val):'<span style="color:#aaa">(작성 안 함)</span>';
+    const lk=link&&link.trim()?`<div style="margin-top:4px;font-size:13px;color:#1D6FE0;word-break:break-all;">${esc(link)}</div>`:'';
+    const im=(imgs||[]).filter(Boolean).map(s=>`<div style="margin-top:8px"><img class="pd-img" src="${s}" style="max-width:100%;border:1px solid #E4E8EC;border-radius:8px"></div>`).join('');
+    return `<div class="pd-block" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #EDF0F3;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.05em;color:#1D6FE0;margin-bottom:6px;">${label}</div>
+      <div style="font-size:14px;line-height:1.65;color:#17242F;white-space:pre-wrap;">${v}</div>${lk}${im}</div>`; };
+  document.getElementById('printDoc').innerHTML=`<div style="font-family:'Pretendard',sans-serif;color:#17242F;">
+      <div style="border-bottom:3px solid #0F3D73;padding-bottom:14px;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:#1D6FE0;">BIG DATA ANALYZE · 수행평가 활동지</div>
+        <div style="font-size:24px;font-weight:800;margin-top:6px;">빅데이터로 사회문제 해결하기</div>
+        <div style="font-size:13px;color:#5A6674;margin-top:8px;">학번 ${esc(a.studentId)||'—'} &nbsp;·&nbsp; 이름 ${esc(a.studentName)||'—'} &nbsp;·&nbsp; ${new Date().toLocaleDateString('ko-KR')} &nbsp;·&nbsp; 총 학습시간 ${fmtSec(totalSec())}</div>
+      </div>
+      ${block('01. 관심 분야',a.interest)}
+      ${block('02. 발견한 사회적 문제',a.problem,[a.articleImg])}
+      ${block('02-1. 문제 선택 이유',a.problemReason)}
+      ${block('03. 선택한 기계학습 기법',a.method)}
+      ${block('03-1. 선택한 이유',a.methodReason)}
+      ${block('04. 필요한 데이터 설명',a.dataDesc)}
+      ${block('04-1. 독립변수 / 종속변수',`독립변수: ${a.indepVar}\n종속변수: ${a.depVar}`)}
+      ${block('05. 데이터 생성 프롬프트',a.dataGenPrompt)}
+      ${block('05-1. 생성한 데이터 링크','',null,a.dataLink)}
+      ${block('06. 그래프 생성 프롬프트',a.vizPrompt)}
+      ${block('06-1. 시각화 자료','',a.vizImgs)}
+      ${block('07. 자료 분석',a.vizAnalysis)}
+      ${block('08. 해결 방안 및 실천 계획',a.solution)}
+    </div>`; }
+function printPDF(){ buildPrintDoc(); setTimeout(()=>window.print(),150); }
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ══════════ 고유 링크로 결과·피드백 열람 (JSONP 읽기) ══════════ */
+let resultMode=false, viewToken=null, viewRecord=null;
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='cb'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('시간 초과')); }, 90000);
+    function cleanup(){ try{delete window[cb];}catch(e){} s.remove(); clearTimeout(timer); }
+    window[cb]=(data)=>{ resolve(data); cleanup(); };
+    s.onerror=()=>{ cleanup(); reject(new Error('네트워크 오류')); };
+    const q=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    s.src=CONFIG.submitUrl+(CONFIG.submitUrl.indexOf('?')>=0?'&':'?')+q+'&callback='+cb;
+    document.body.appendChild(s);
+  });
+}
+function enterResultView(token){
+  resultMode=true; viewToken=token;
+  const rail=document.querySelector('.rail'), foot=document.querySelector('.foot');
+  if(rail) rail.style.display='none'; if(foot) foot.style.display='none';
+  document.getElementById('stageHost').innerHTML='<div class="stage" style="text-align:center;padding:36px 0;color:var(--sub)">결과를 불러오는 중...</div>';
+  loadResult(0);
+}
+async function loadResult(tryn){
+  if(!CONFIG.submitUrl){ document.getElementById('stageHost').innerHTML='<div class="stage" style="padding:20px 0;color:var(--sub)">제출 주소가 설정되지 않아 결과를 불러올 수 없습니다.</div>'; return; }
+  try{
+    const res=await jsonp({action:'load', id:viewToken});
+    if(res && res.ok && res.record){ viewRecord=res.record; renderResult(); return; }
+    throw new Error((res&&res.error)||'기록 없음');
+  }catch(e){
+    if(tryn<4){ setTimeout(()=>loadResult(tryn+1), 1800); return; }
+    document.getElementById('stageHost').innerHTML='<div class="stage" style="padding:20px 0;color:var(--sub)">아직 결과를 찾지 못했어요. 방금 제출했다면 1~2분 뒤 이 링크를 새로고침 해주세요.<br><br><button class="btn btn-ghost" onclick="loadResult(0)">다시 시도</button></div>';
+  }
+}
+function renderResult(){
+  const r=viewRecord;
+  document.getElementById('whoami').textContent = r.studentName ? `${r.studentId} ${r.studentName}` : '';
+  const row=(k,v,link)=>{ const val=(v&&String(v).trim())?`<div class="sum-v">${esc(v)}</div>`:`<div class="sum-v empty">(작성 안 함)</div>`;
+    const lk=link&&String(link).trim()?`<div class="sum-v" style="margin-top:4px"><a href="${esc(link)}" target="_blank" rel="noopener">첨부/링크 열기</a></div>`:'';
+    return `<div class="sum-item"><div class="sum-k">${k}</div>${val}${lk}</div>`; };
+  const rows=row('관심 분야',r.interest)+row('사회적 문제',r.problem,r.articleImg)+row('문제 선택 이유',r.problemReason)
+    +row('선택한 기법 · 이유',(r.method?`[${r.method}] `:'')+r.methodReason)
+    +row('필요한 데이터',`${r.dataDesc}\n· 독립변수: ${r.indepVar}\n· 종속변수: ${r.depVar}`)
+    +row('데이터 생성 프롬프트',r.dataGenPrompt)+row('생성한 데이터 링크','',r.dataLink)
+    +row('그래프 생성 프롬프트',r.vizPrompt)+row('시각화 자료','',r.vizImgs)
+    +row('자료 분석',r.vizAnalysis)+row('해결 방안',r.solution);
+  const fb = r.feedback && String(r.feedback).trim();
+  const fbBlock = fb
+    ? `<div id="fbBox">${renderFeedbackCards(r.feedback)}</div>
+       <button class="btn btn-ghost" onclick="genFeedback(true)" style="margin-top:12px;padding:9px 16px;font-size:13px;">피드백 다시 생성</button>`
+    : `<div style="text-align:center;padding:6px 0 4px;">
+         <button class="btn btn-primary" id="fbBtn" onclick="genFeedback(false)" style="padding:14px 22px;">🌱 AI 선생님 피드백 받기</button>
+         <div style="font-size:12px;color:var(--faint);margin-top:8px;">정답은 알려주지 않고, 개념과 방향, 그리고 예시로 도와줘요. (10~20초 걸려요)</div>
+       </div>`;
+  document.getElementById('stageHost').innerHTML=`<div class="stage">
+    <div class="eyebrow"><span class="num">RESULT</span> 나의 결과 · 피드백</div>
+    <h1 class="title">${esc(r.studentName||'')} 님의 수행평가 결과</h1>
+    <p class="lead">제출한 내용을 확인하고, 아래에서 선생님 피드백을 받아 보세요.</p>
+    <div style="font-size:13px;font-weight:800;color:var(--accent);margin:18px 0 8px;">📝 내가 작성한 내용</div>
+    <div class="summary-box">${rows}</div>
+    <div style="font-size:13px;font-weight:800;color:var(--green);margin:20px 0 10px;">💬 성장 피드백</div>
+    ${fbBlock}
+  </div>`;
+}
+/* 피드백 텍스트를 4구간 컬러 카드로 렌더 */
+function renderFeedbackCards(text){
+  text = String(text).replace(/\*\*/g,'').replace(/^\s*\*\s+/gm,'· ');  // 마크다운 ** 및 * 불릿 정리
+  const secs=[
+    {emoji:"🌱", title:"잘한 점",        bg:"#E6F4EC", bd:"#BFE3CE", fg:"#14603f"},
+    {emoji:"📖", title:"개념 콕!",       bg:"#EAF1FC", bd:"#CFE0F7", fg:"#0F3D73"},
+    {emoji:"🧭", title:"이렇게 해볼까?", bg:"#FBF1DE", bd:"#F0DFB8", fg:"#8A5A12"},
+    {emoji:"💡", title:"예시로 이해하기", bg:"#F3EDFB", bd:"#DECBF3", fg:"#5B2E8A"}
+  ];
+  const lines=String(text).split(/\n/);
+  const buckets=secs.map(()=>[]); let cur=-1, matched=false;
+  lines.forEach(ln=>{
+    const hit=secs.findIndex(sc=>ln.trim().startsWith(sc.emoji));
+    if(hit>=0){ cur=hit; matched=true; return; }        // 제목 줄은 카드 헤더로 대체
+    if(cur>=0) buckets[cur].push(ln);
+  });
+  if(!matched){  // 형식을 못 맞춘 경우: 통째로 표시
+    return `<div style="background:#E6F4EC;border:1px solid #BFE3CE;border-radius:14px;padding:18px 20px;line-height:1.75;font-size:14.5px;color:#14603f;">${esc(text).replace(/\n/g,'<br>')}</div>`;
+  }
+  return secs.map((sc,i)=>{
+    const body=buckets[i].join('\n').trim();
+    if(!body) return '';
+    return `<div style="background:${sc.bg};border:1px solid ${sc.bd};border-radius:14px;padding:14px 18px 16px;margin-bottom:12px;">
+      <div style="font-weight:800;font-size:14px;color:${sc.fg};margin-bottom:7px;">${sc.emoji} ${sc.title}</div>
+      <div style="line-height:1.75;font-size:14px;color:#2B3540;">${esc(body).replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+}
+async function genFeedback(force){
+  const btn=document.getElementById('fbBtn'), box=document.getElementById('fbBox');
+  if(box && force){ box.innerHTML='피드백을 다시 만드는 중... 잠시만요'; }
+  try{
+    const res=await jsonp({action:'feedback', id:viewToken, force: force?'1':'0'});
+    if(res && res.ok && res.feedback){ viewRecord.feedback=res.feedback; renderResult(); }
+    else throw new Error((res&&res.error)||'생성 실패');
+  }catch(e){
+    alert('피드백 생성 중 문제가 발생했어요.\n(원인: '+(e.message||e)+')\n잠시 후 다시 시도해 주세요.');
+    renderResult();
+  }
+}
+
+window.addEventListener('beforeunload', e=>{ if(!resultMode && state.currentStage>0 && state.currentStage<LAST){ e.preventDefault(); e.returnValue=''; } });
+document.addEventListener('visibilitychange', ()=>{ if(!resultMode && document.hidden) tickTime(); });
+
+/* ── 시작 ── */
+load();
+const _urlToken = new URLSearchParams(location.search).get('id');
+if(_urlToken){ enterResultView(_urlToken); }
+else { stageEnterAt=Date.now(); render(); setInterval(tickTime,3000); }
+</script>
+</body>
+</html>

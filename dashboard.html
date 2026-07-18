@@ -97,6 +97,20 @@ body{font-family:'Pretendard',-apple-system,system-ui,sans-serif;background:var(
 .kv .v a{color:var(--accent);word-break:break-all;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:560px){.grid2{grid-template-columns:1fr;}}
+
+/* 작성 내용 좌우 분할 */
+.report-split{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media(max-width:800px){.report-split{grid-template-columns:1fr;}}
+.report-right{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 40px);overflow-y:auto;padding-right:2px;}
+@media(max-width:800px){.report-right{position:static;max-height:none;}}
+.imgfig{margin:0 0 16px;}
+.imgfig figcaption{font-size:12px;font-weight:800;color:var(--sub);margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.imgfig figcaption a{font-size:11px;font-weight:700;color:var(--accent);text-decoration:none;}
+.imgfig img{width:100%;border-radius:12px;border:1px solid var(--line);display:block;background:#F7F9FB;}
+.imgfig .imgfail-msg{display:none;font-size:12.5px;color:var(--faint);background:#FBFCFD;border:1.5px dashed var(--line-strong);border-radius:12px;padding:16px;text-align:center;}
+.imgfig .imgfail-msg a{color:var(--accent);font-weight:700;}
+.imgfig.imgfail img{display:none;}
+.imgfig.imgfail .imgfail-msg{display:block;}
 .pill-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none;padding:7px 12px;border:1.5px solid #CFE0F7;border-radius:9px;background:var(--accent-soft);margin:4px 6px 0 0;}
 .hint-empty{text-align:center;color:var(--faint);padding:40px 0;font-size:14px;}
 .tokline{font-size:11px;color:var(--faint);margin-top:6px;word-break:break-all;}
@@ -315,32 +329,48 @@ function renderStudent(s){
     <div class="card" style="margin-bottom:16px;"><div class="sec-title" style="color:var(--green)">💬 학생 피드백</div>
       ${box('green',s.feedback,'학생이 아직 피드백을 생성하지 않았어요.')}</div>
 
-    <div class="card"><div class="sec-title">📝 작성 내용 (전체)</div>
-      <div class="grid2">
-        <div>
+    <div class="card"><div class="sec-title">📝 작성 내용 &amp; 제출 이미지</div>
+      <div class="report-split">
+        <div class="report-left">
           ${kv('관심 분야',s.interest)}
           ${kv('사회적 문제',s.problem)}
           ${kv('문제 선택 이유',s.problemReason)}
           ${kv('선택 기법',s.method)}
           ${kv('기법 선택 이유',s.methodReason)}
           ${kv('필요 데이터 설명',s.dataDesc)}
-        </div>
-        <div>
           ${kv('독립변수',s.indepVar)}
           ${kv('종속변수',s.depVar)}
           ${kv('데이터 생성 프롬프트',s.dataGenPrompt)}
           ${kv('그래프 생성 프롬프트',s.vizPrompt)}
           ${kv('자료 분석',s.vizAnalysis)}
           ${kv('해결 방안',s.solution)}
+          <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px;">
+            ${linkChip('생성 데이터',s.dataLink)}
+            ${s.link?`<a class="pill-link" href="${esc(s.link)}" target="_blank" rel="noopener">학생 결과 화면 ↗</a>`:''}
+          </div>
+        </div>
+        <div class="report-right">
+          ${ (String(s.articleImg||'').trim()||vizLinks.length) ? (
+              (String(s.articleImg||'').trim()? imgBlock('📰 신문 기사', s.articleImg):'')
+              + vizLinks.map((u,i)=>imgBlock('📊 그래프'+(vizLinks.length>1?(' '+(i+1)):''), u)).join('')
+            ) : `<div class="empty-ph">제출한 이미지가 없어요.</div>` }
         </div>
       </div>
-      <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
-        ${linkChip('생성 데이터',s.dataLink)}
-        ${linkChip('신문 기사',s.articleImg)}
-        ${vizLinks.map((u,i)=>`<a class="pill-link" href="${esc(u)}" target="_blank" rel="noopener">그래프${vizLinks.length>1?(i+1):''} ↗</a>`).join('')}
-        ${s.link?`<a class="pill-link" href="${esc(s.link)}" target="_blank" rel="noopener">학생 결과 화면 ↗</a>`:''}
-      </div>
     </div>`;
+}
+
+/* 드라이브 링크 → 화면에 바로 보이는 썸네일/원본 */
+function driveId(url){ const m=String(url||'').match(/\/d\/([\w-]+)/)||String(url||'').match(/[?&]id=([\w-]+)/); return m?m[1]:null; }
+function imgBlock(label, url){
+  const u=String(url||'').split('\n')[0].trim(); if(!u) return '';
+  const id=driveId(u);
+  const src=id?('https://drive.google.com/thumbnail?id='+id+'&sz=w1600'):u;
+  const open=id?('https://drive.google.com/file/d/'+id+'/view'):u;
+  return `<figure class="imgfig">
+    <figcaption>${label} <a href="${esc(open)}" target="_blank" rel="noopener">원본 ↗</a></figcaption>
+    <a href="${esc(open)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(src)}" alt="${esc(label)}" onerror="this.closest('.imgfig').classList.add('imgfail')"></a>
+    <div class="imgfail-msg">이미지를 바로 표시할 수 없어요 · <a href="${esc(open)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+  </figure>`;
 }
 </script>
 </body>

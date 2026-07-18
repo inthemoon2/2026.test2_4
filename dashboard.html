@@ -60,16 +60,14 @@ body{font-family:'Pretendard',-apple-system,system-ui,sans-serif;background:var(
 .prog .fill{height:100%;border-radius:99px;transition:width .6s ease;}
 
 /* 반/번호 선택 */
-.picker{margin-bottom:16px;}
-.picker .lb{font-size:12px;font-weight:800;color:var(--faint);margin:0 0 8px;letter-spacing:.03em;}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
-.chip{font-family:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--line-strong);background:#fff;color:var(--sub);border-radius:10px;padding:8px 15px;cursor:pointer;transition:all .14s;}
-.chip:hover{border-color:var(--accent);color:var(--accent);}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(29,111,224,.25);}
-.chip .nm{font-weight:600;font-size:12.5px;opacity:.85;margin-left:5px;}
-.chip.done{position:relative;}
-.chip.done::after{content:'●';position:absolute;top:-4px;right:-3px;font-size:9px;color:var(--green);}
-.chip.on.done::after{color:#BFE3CE;}
+.picker{margin-bottom:18px;}
+.sel-row{display:flex;gap:14px;flex-wrap:wrap;}
+.sel-box{flex:1;min-width:180px;}
+.sel-box label{display:block;font-size:12px;font-weight:800;color:var(--faint);margin-bottom:7px;letter-spacing:.03em;}
+.sel-box select{width:100%;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:#FBFCFD;cursor:pointer;
+  appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A6674' stroke-width='2.4' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;}
+.sel-box select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,111,224,.12);}
+.sel-box select:disabled{opacity:.55;cursor:default;background-color:#F1F3F5;}
 
 /* 개인 대시보드 */
 .stu-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:linear-gradient(120deg,#0F3D73,#1D6FE0);color:#fff;border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow);}
@@ -131,25 +129,17 @@ body{font-family:'Pretendard',-apple-system,system-ui,sans-serif;background:var(
     </div>
   </div>
 
-  <!-- 전체 요약 -->
-  <div class="summary">
-    <div class="card stat purple"><div class="lab">평균 모의 총점</div><div class="val" id="sScore">–</div><div class="sub" id="sScoreSub"></div></div>
-    <div class="card stat green"><div class="lab">평균 수행 시간</div><div class="val" id="sTime">–</div><div class="sub">단계 합계 기준</div></div>
-    <div class="card">
-      <div class="lab" style="font-size:12px;color:var(--faint);font-weight:700;margin-bottom:10px;">생성 현황</div>
-      <div class="prog"><div class="pl"><span>피드백</span><span id="pgFbT"></span></div><div class="bar"><div class="fill" id="pgFb" style="background:var(--green);width:0"></div></div></div>
-      <div class="prog"><div class="pl"><span>세특</span><span id="pgStT"></span></div><div class="bar"><div class="fill" id="pgSt" style="background:var(--accent);width:0"></div></div></div>
-      <div class="prog"><div class="pl"><span>모의채점</span><span id="pgScT"></span></div><div class="bar"><div class="fill" id="pgSc" style="background:var(--purple);width:0"></div></div></div>
-    </div>
-  </div>
-
-  <!-- 반/번호 선택 -->
+  <!-- 반/번호 선택 (드롭다운) -->
   <div class="card picker">
-    <div class="lb">반 선택</div>
-    <div class="chips" id="classChips"></div>
-    <div id="numWrap" style="display:none;">
-      <div class="lb" style="margin-top:14px;">번호 선택</div>
-      <div class="chips" id="numChips"></div>
+    <div class="sel-row">
+      <div class="sel-box">
+        <label>반</label>
+        <select id="selClass" onchange="onClassChange()"><option value="">반 선택</option></select>
+      </div>
+      <div class="sel-box">
+        <label>번호 · 이름</label>
+        <select id="selNum" onchange="onNumChange()" disabled><option value="">번호 선택</option></select>
+      </div>
     </div>
   </div>
 
@@ -159,7 +149,7 @@ body{font-family:'Pretendard',-apple-system,system-ui,sans-serif;background:var(
 
 <script>
 const LS_EXEC='dash_exec_url';
-let EXEC='', PW='', DATA=[], curClass=null, curId=null;
+let EXEC='', PW='', DATA=[], STUDENTS=[];
 
 /* JSONP */
 function jsonp(params){
@@ -193,19 +183,23 @@ async function openDash(){
       document.getElementById('loginMask').style.display='none';
       document.getElementById('dash').style.display='block';
       document.getElementById('metaLine').textContent='마지막 갱신: '+(res.generatedAt||'-')+' · 제출 '+DATA.length+'명';
-      renderSummary(); renderClassChips();
+      buildStudents(); populateClassSelect();
     } else if(res&&res.error==='AUTH'){ err.textContent='암호가 올바르지 않습니다.'; }
     else err.textContent='데이터를 불러오지 못했습니다.';
   }catch(e){ err.textContent='연결 실패: '+(e.message||e); }
   finally{ btn.disabled=false; btn.textContent='대시보드 열기'; }
 }
 async function reload(){
+  const prevKey = document.getElementById('selNum') ? document.getElementById('selNum').value : '';
+  const prevStu = STUDENTS[prevKey];
+  const prevToken = prevStu ? prevStu.token : null;
   try{ const res=await jsonp({action:'dashboard',pw:PW});
     if(res&&res.ok){ DATA=(res.rows||[]).map(prep);
       document.getElementById('metaLine').textContent='마지막 갱신: '+(res.generatedAt||'-')+' · 제출 '+DATA.length+'명';
-      renderSummary(); renderClassChips();
-      if(curId){ const s=DATA.find(r=>r.studentId===curId); if(s) renderStudent(s); } }
-  }catch(e){ alert('새로고침 실패: '+(e.message||e)); }
+      buildStudents(); populateClassSelect();
+      if(prevToken){ const i=STUDENTS.findIndex(s=>s.token===prevToken); if(i>=0){ selectByIndex(i); } }
+    } }
+  catch(e){ alert('새로고침 실패: '+(e.message||e)); }
 }
 function logout(){ PW=''; location.reload(); }
 
@@ -228,42 +222,45 @@ const STAGE_ORDER=['interest','problem','method','data','datagen','viz','analysi
 const STAGE_SHORT={interest:'관심',problem:'문제',method:'기법',data:'데이터',datagen:'생성',viz:'시각화',analysis:'분석',solution:'해결'};
 const STAGE_FULL={interest:'관심분야',problem:'사회문제',method:'기법선택',data:'필요데이터',datagen:'데이터생성',viz:'시각화',analysis:'자료분석',solution:'해결방안'};
 
-/* 전체 요약 */
-function renderSummary(){
-  const n=DATA.length||1;
-  const scores=DATA.map(r=>r.scoreNum).filter(v=>v!=null);
-  const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
-  document.getElementById('sScore').innerHTML=avg!=null?(avg+'<small>/100</small>'):'–';
-  document.getElementById('sScoreSub').textContent=scores.length?(scores.length+'명 채점됨'):'모의채점 생성 전';
-  const totals=DATA.map(r=>r.total).filter(v=>v>0);
-  const at=totals.length?Math.round(totals.reduce((a,b)=>a+b,0)/totals.length):0;
-  document.getElementById('sTime').innerHTML=at?fmtSec(at):'–';
-  const fb=DATA.filter(r=>r.hasFb).length, st=DATA.filter(r=>r.hasSt).length, sc=DATA.filter(r=>r.hasSc).length;
-  document.getElementById('pgFbT').textContent=fb+' / '+DATA.length; document.getElementById('pgFb').style.width=(DATA.length?fb/DATA.length*100:0)+'%';
-  document.getElementById('pgStT').textContent=st+' / '+DATA.length; document.getElementById('pgSt').style.width=(DATA.length?st/DATA.length*100:0)+'%';
-  document.getElementById('pgScT').textContent=sc+' / '+DATA.length; document.getElementById('pgSc').style.width=(DATA.length?sc/DATA.length*100:0)+'%';
+/* 학생 목록 구성 (같은 학번+이름은 최신 제출만) */
+function buildStudents(){
+  const map={};
+  DATA.forEach(r=>{ const key=String(r.studentId)+'|'+String(r.studentName); map[key]=r; }); // 뒤(최신)가 앞을 덮음
+  STUDENTS=Object.values(map);
 }
-
-/* 반 칩 */
-function renderClassChips(){
-  const classes=[...new Set(DATA.map(r=>r.cls))].filter(c=>c>0).sort((a,b)=>a-b);
-  document.getElementById('classChips').innerHTML=classes.map(c=>
-    `<button class="chip ${curClass===c?'on':''}" onclick="selectClass(${c})">${c}반 <span class="nm">${DATA.filter(r=>r.cls===c).length}명</span></button>`).join('')
-    || '<span style="color:var(--faint);font-size:13px">제출한 학생이 없어요.</span>';
-  if(curClass!=null) renderNumChips();
-}
-function selectClass(c){ curClass=c; curId=null; document.getElementById('numWrap').style.display='block';
-  document.getElementById('student').innerHTML='<div class="hint-empty">번호를 선택하면 학생 대시보드가 나타납니다.</div>';
-  renderClassChips(); renderNumChips(); }
-function renderNumChips(){
-  const list=DATA.filter(r=>r.cls===curClass).sort((a,b)=>a.num-b.num);
-  document.getElementById('numChips').innerHTML=list.map(r=>{
-    const done=r.hasSc||r.hasSt;
-    return `<button class="chip ${curId===r.studentId?'on':''} ${done?'done':''}" onclick="selectStudent('${esc(r.studentId)}')">${r.num}번<span class="nm">${esc(r.studentName)}</span></button>`;
+function populateClassSelect(){
+  const classes=[...new Set(STUDENTS.map(s=>s.cls))].filter(c=>c>0).sort((a,b)=>a-b);
+  const sel=document.getElementById('selClass');
+  sel.innerHTML='<option value="">반 선택</option>'+classes.map(c=>{
+    const cnt=STUDENTS.filter(s=>s.cls===c).length;
+    return `<option value="${c}">${c}반 (${cnt}명)</option>`;
   }).join('');
+  const numSel=document.getElementById('selNum');
+  numSel.innerHTML='<option value="">번호 선택</option>'; numSel.disabled=true;
+  document.getElementById('student').innerHTML='<div class="hint-empty">위에서 반과 번호를 선택하면 학생별 대시보드가 나타납니다.</div>';
 }
-function selectStudent(id){ curId=id; renderNumChips(); const s=DATA.find(r=>r.studentId===id); if(s) renderStudent(s);
-  document.getElementById('student').scrollIntoView({behavior:'smooth',block:'start'}); }
+function onClassChange(){
+  const c=parseInt(document.getElementById('selClass').value,10);
+  const numSel=document.getElementById('selNum');
+  document.getElementById('student').innerHTML='<div class="hint-empty">번호를 선택하면 학생 대시보드가 나타납니다.</div>';
+  if(!c){ numSel.innerHTML='<option value="">번호 선택</option>'; numSel.disabled=true; return; }
+  const list=STUDENTS.map((s,i)=>({s,i})).filter(o=>o.s.cls===c).sort((a,b)=>a.s.num-b.s.num);
+  numSel.innerHTML='<option value="">번호 선택</option>'+list.map(o=>{
+    const mark=(o.s.hasSc||o.s.hasSt)?' ●':'';
+    return `<option value="${o.i}">${o.s.num}번 · ${esc(o.s.studentName)}${mark}</option>`;
+  }).join('');
+  numSel.disabled=false;
+}
+function onNumChange(){
+  const v=document.getElementById('selNum').value;
+  if(v==='') { document.getElementById('student').innerHTML='<div class="hint-empty">번호를 선택하면 학생 대시보드가 나타납니다.</div>'; return; }
+  selectByIndex(parseInt(v,10));
+}
+function selectByIndex(i){
+  const s=STUDENTS[i]; if(!s) return;
+  renderStudent(s);
+  document.getElementById('student').scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 /* 꺾은선 그래프 (문제별 시간) */
 function lineChart(stu){
